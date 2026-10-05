@@ -285,6 +285,20 @@ def cert_mode_flags(status):
     raise ValueError(f"Certificate mode is not conclusive: {status}; manual analysis required")
 
 
+def sign_all_flag(tools):
+    """Extra sign_mtk_cert.py flags that the supported tool build always takes.
+
+    The signing flow runs every image group of the container in one pass, so `--all` is not
+    optional for the sign_mtk_cert.py this project is written against: the manual already
+    documents `--all -w` for NEW_PARSER and `--legacy --all -w` for LEGACY, and
+    verify_mtk_image.py is then asked for two `Result: VALID` groups.
+
+    Kept as a named hook (rather than inlined at the call site) so that a tool copy which
+    does not know the option can be handled here without touching `main()`.
+    """
+    return ["--all"]
+
+
 def detect_signing_mode(preloader, output_dir):
     require(preloader.stat().st_size <= 32 * 1024 * 1024, "Preloader exceeds detector size limit")
     original_hash = sha(preloader.read_bytes())
